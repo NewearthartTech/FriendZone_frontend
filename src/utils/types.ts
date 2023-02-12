@@ -3,4 +3,6 @@ export type ShareReward = {
 	link?: string;
 	minAge?: string | number;
 	maxAge?: string | number;
+	rewardAmount?: string | number;
+	maxUsers?: number;
 };

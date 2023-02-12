@@ -1,10 +1,21 @@
-import { Box, Button, Chip, FormControl, InputAdornment, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, TextField, Typography } from '@mui/material'
+import { Alert, Link, Box, Button, Chip, FormControl, InputAdornment, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, TextField, Typography, Slider } from '@mui/material'
 import React, { useState } from 'react'
 import { countries } from "../utils/countries"
 import { ShareReward } from '../utils/types';
 const Upload = () => {
-    const [countryCode, setCountryCode] = useState<string>();
-    const [shareReward, setShareReward] = useState<ShareReward>()
+    const [shareReward, setShareReward] = useState<ShareReward>(
+        {
+            maxUsers: 1,
+            countries: []
+        }
+    )
+    const [generatedLink, setGeneratedLink] = useState<string>();
+    const generateLink = async () => {
+        await setTimeout(() => {
+            setGeneratedLink("http://localhost:5173/claim/123445")
+        },
+            1000)
+    }
     return (
         <Box sx={{ textAlign: "center" }} mt={12}>
             <Typography mx="auto" mb={8} variant="h4" gutterBottom>Create link for sharing reward</Typography>
@@ -56,9 +67,26 @@ const Upload = () => {
                     startAdornment: <InputAdornment position="start">CCD</InputAdornment>,
                 }} label="Reward Amount" inputProps={{ inputMode: 'numeric', pattern: '/[^0-9\.]+/g' }} fullWidth />
 
-                <Button variant="contained" color="warning" sx={{ marginTop: 4 }}>
+                <Typography variant="h5" my={2} textAlign="left">No. of users able to claim</Typography>
+                <Slider
+                    color="warning"
+                    aria-label="Max Users"
+                    value={shareReward?.maxUsers}
+                    onChange={(event: Event, newValue: number | number[]) => {
+                        setShareReward({ ...shareReward!, maxUsers: newValue as number })
+                    }}
+                    valueLabelDisplay="auto"
+                    step={1}
+                    marks
+                    min={1}
+                    max={24}
+                />
+                {shareReward.rewardAmount && (<Typography variant="body2" textAlign="right" color="gray">{Number(shareReward.rewardAmount) / (shareReward.maxUsers ?? 1)} CCD for each user</Typography>)}
+                <Button onClick={() => generateLink()} variant="contained" color="warning" sx={{ marginY: 4 }}>
                     Generate reward link
                 </Button>
+
+                {generatedLink && (<Alert sx={{ mb: 4 }} severity="success">Shareable link generated: <Link variant="inherit" href={generatedLink}>{generatedLink}</Link></Alert>)}
             </Box>
         </Box>
     )
