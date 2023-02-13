@@ -93,6 +93,10 @@ const Claim = () => {
                         </Typography>
                     </CardContent>
                 </Card>
+
+                <Alert sx={{ mt: 4, maxWidth: "30rem", mx: "auto" }} variant="outlined" severity="success" >
+                    Reward claimed successfully, received {(Number(shareReward?.rewardAmount) / (shareReward?.maxUsers ?? 1)).toFixed(2)} CCD
+                </Alert>
             </>
         </WalletEnsure>
     )
