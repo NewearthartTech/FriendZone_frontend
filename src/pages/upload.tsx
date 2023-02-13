@@ -1,8 +1,11 @@
-import { Alert, Link, Box, Button, Chip, FormControl, InputAdornment, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, TextField, Typography, Slider } from '@mui/material'
+import { Alert, Link, Box, Button, Chip, FormControl, InputAdornment, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, TextField, Typography, Slider, IconButton } from '@mui/material'
 import React, { useState } from 'react'
 import { countries } from "../utils/countries"
 import { ShareReward } from '../utils/types';
 import WalletEnsure from '../components/walletEnsure';
+import toast from 'react-hot-toast';
+import { copyText } from '../utils/utils';
+import { ContentCopy } from '@mui/icons-material';
 const Upload = () => {
     const [shareReward, setShareReward] = useState<ShareReward>(
         {
@@ -88,7 +91,17 @@ const Upload = () => {
                         Generate reward link
                     </Button>
 
-                    {generatedLink && (<Alert sx={{ mb: 4 }} severity="success">Shareable link generated: <Link variant="inherit" href={generatedLink}>{generatedLink}</Link></Alert>)}
+                    {generatedLink && (
+                        <Alert sx={{ mb: 4 }} action={<IconButton onClick={() => {
+                            copyText(shareReward?.link ?? "")
+                            toast.success("Link copied successfully")
+                        }} aria-label="copy" >
+                            <ContentCopy />
+                        </IconButton>} severity="success">
+                            Shareable link generated: <Link variant="inherit" href={generatedLink}>
+                                {generatedLink}
+                            </Link>
+                        </Alert>)}
                 </Box>
             </Box>
         </WalletEnsure>

@@ -1,10 +1,12 @@
-import { Alert, AlertTitle, Backdrop, Link, Box, Card, CardContent, Chip, CircularProgress, Typography } from '@mui/material'
+import { Alert, AlertTitle, Backdrop, Link, Box, Card, CardContent, Chip, CircularProgress, Typography, IconButton } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom';
 import { ShareReward } from '../utils/types';
 import WalletEnsure from '../components/walletEnsure';
 import { countries } from '../utils/countries';
-
+import { copyText } from '../utils/utils';
+import toast from 'react-hot-toast';
+import { ContentCopy } from '@mui/icons-material';
 const Claim = () => {
     const { id } = useParams();
     const [shareReward, setShareReward] = useState<ShareReward>();
@@ -70,6 +72,7 @@ const Claim = () => {
                                 Link to claim:
                             </Typography>
                             <Box sx={{
+                                position: "relative",
                                 border: '2px solid #343434',
                                 borderRadius: "10px",
                                 textAlign: "center",
@@ -77,6 +80,12 @@ const Claim = () => {
                                 padding: "0.5em"
                             }}>
                                 <Link href={shareReward?.link} target="_blank">{shareReward?.link}</Link>
+                                <IconButton onClick={() => {
+                                    copyText(shareReward?.link ?? "")
+                                    toast.success("Link copied successfully")
+                                }} aria-label="copy" sx={{ position: "absolute", top: "50%", transform: "translate(-50%,-50%)", right: -10 }}>
+                                    <ContentCopy />
+                                </IconButton>
                             </Box>
                         </Box>
                         <Typography variant="h5">
