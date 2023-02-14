@@ -31,7 +31,7 @@ const Claim = () => {
                             rewardLink: "https://www.google.com/",
                         },
                         referal: {
-                            personalLink: "https://www.bing.com/",
+                            personalLink: "http://localhost:5173/refClaim/23224",
                             walletAddress: wallet.address
                         }
                     });
@@ -132,7 +132,7 @@ const Claim = () => {
                         </Box>
 
                         <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-                            Max Reward amount
+                            Reward avalaible
                         </Typography>
                         <Typography variant="h5">
                             {((shareReferral?.rewardAttribute?.amountPaidPerClick ?? 1) * 12).toFixed(2)} CCD
