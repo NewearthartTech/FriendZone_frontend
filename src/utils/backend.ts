@@ -49,7 +49,8 @@ export async function createRewardAttributes(
 		}
 	);
 	const body = await r.json();
-	return JSON.parse(body);
+	console.log(body);
+	return body;
 }
 
 export async function claimReward(
@@ -64,7 +65,7 @@ export async function claimReward(
 		}
 	);
 	const body = await r.json();
-	return JSON.parse(body);
+	return body;
 }
 
 export async function createReferral(
@@ -79,7 +80,7 @@ export async function createReferral(
 		}
 	);
 	const body = await r.json();
-	return JSON.parse(body);
+	return body;
 }
 
 export async function getReferalInfoByWalletAddress(
@@ -89,7 +90,7 @@ export async function getReferalInfoByWalletAddress(
 		`${import.meta.env.VITE_BACKEND_ENDPOINT}/rewards/referal/${address}`
 	);
 	const body = await r.json();
-	return JSON.parse(body);
+	return body;
 }
 
 // Concordium Verification endpoints
@@ -98,7 +99,7 @@ export async function getChallenge(address: string): Promise<Verifier> {
 		`${import.meta.env.VITE_BACKEND_ENDPOINT}/verifiers/challenge/${address}`
 	);
 	const body = await r.json();
-	return JSON.parse(body);
+	return body;
 }
 
 export async function getAuth(
@@ -108,7 +109,7 @@ export async function getAuth(
 		`${import.meta.env.VITE_BACKEND_ENDPOINT}/verifiers/prove/${challenge}`
 	);
 	const body = await r.json();
-	return JSON.parse(body);
+	return body;
 }
 
 export async function deleteChallenge(challenge: string) {

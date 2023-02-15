@@ -1,7 +1,7 @@
 import { Alert, Link, Box, Button, Chip, FormControl, InputAdornment, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, TextField, Typography, Slider, IconButton } from '@mui/material'
 import React, { useState } from 'react'
 import { countries } from "../utils/countries"
-import { IAsyncResult, RewardAttribute } from '../utils/types';
+import { RewardAttribute } from '../utils/types';
 import WalletEnsure from '../components/walletEnsure';
 import toast from 'react-hot-toast';
 import { copyText, validShareReward } from '../utils/utils';
@@ -14,22 +14,26 @@ const Upload = () => {
     const [wallet] = useAtom(walletAtom)
     const [shareReward, setShareReward] = useState<RewardAttribute>(
         {
-            WalletAddress: wallet.address,
-            NumberOfUsersAbleToClaim: 1,
-            Countries: []
+            walletAddress: wallet.address ?? "",
+            numberOfUsersAbleToClaim: 1,
+            countries: []
         }
     )
-    const [generatedLink, setGeneratedLink] = useState<IAsyncResult<string>>();
+    const [generatedLink, setGeneratedLink] = useState<string>();
+    const [loading, setLoading] = useState<boolean>();
+    const [failed, setFailed] = useState<boolean>();
     const generateLink = async () => {
-        setGeneratedLink({ isLoading: true });
+        setFailed(false)
+        setLoading(true)
         try {
-            console.log(shareReward)
             const generatedRewardAttribute = await createRewardAttributes(shareReward);
-            setGeneratedLink({ result: generatedRewardAttribute.RewardLink });
+            setGeneratedLink(`http://localhost:5173/claim/${generatedRewardAttribute.id}`);
         }
         catch (e: any) {
-            setGeneratedLink({ error: e })
+            console.log(e)
+            setFailed(true);
         }
+        setLoading(false)
     }
     return (
         <WalletEnsure>
@@ -43,13 +47,13 @@ const Upload = () => {
                             labelId="country-select"
                             id="country-select"
                             multiple
-                            value={shareReward?.Countries ?? []}
+                            value={shareReward?.countries ?? []}
                             label="Countries"
                             onChange={(e: SelectChangeEvent<string[]>) => {
                                 const {
                                     target: { value },
                                 } = e;
-                                setShareReward({ ...shareReward, Countries: typeof value === 'string' ? value.split(',') : value })
+                                setShareReward({ ...shareReward, countries: typeof value === 'string' ? value.split(',') : value })
                             }
                             }
                         >
@@ -57,13 +61,13 @@ const Upload = () => {
                         </Select>
                     </FormControl>
 
-                    {shareReward?.Countries.map((country, i) => (<Chip
+                    {shareReward?.countries.map((country, i) => (<Chip
                         sx={{ margin: 1 }}
                         label={countries.find(e => e.code === country)?.name}
                         onDelete={() => {
-                            const tCountries = shareReward.Countries ?? [];
+                            const tCountries = shareReward.countries ?? [];
                             tCountries.splice(i, 1);
-                            setShareReward({ ...shareReward, Countries: tCountries });
+                            setShareReward({ ...shareReward, countries: tCountries });
                         }}
                     />))}
 
@@ -74,31 +78,31 @@ const Upload = () => {
                         direction={{ xs: 'column', sm: 'row' }}
                         spacing={{ xs: 1, sm: 2, md: 4 }}
                     >
-                        <TextField label="Min. age" value={shareReward.MinAge} onChange={e => {
+                        <TextField label="Min. age" value={shareReward.minAge} onChange={e => {
                             const cleanNum = (e.target.value || '').replace(/[^0-9\.]+/g,
                                 ''
                             );
-                            setShareReward({ ...shareReward, MinAge: cleanNum })
+                            setShareReward({ ...shareReward, minAge: cleanNum })
                         }} fullWidth />
-                        <TextField label="Max age" value={shareReward.MaxAge} onChange={e => {
+                        <TextField label="Max age" value={shareReward.maxAge} onChange={e => {
                             const cleanNum = (e.target.value || '').replace(/[^0-9\.]+/g,
                                 ''
                             );
-                            setShareReward({ ...shareReward, MaxAge: cleanNum })
+                            setShareReward({ ...shareReward, maxAge: cleanNum })
                         }} fullWidth />
                     </Stack>
                     <Typography variant="h5" my={2} textAlign="left">Link to share to users</Typography>
-                    <TextField label="Link to share" value={shareReward.RewardLink} onChange={(e) => {
-                        setShareReward({ ...shareReward, RewardLink: e.target.value });
+                    <TextField label="Link to share" value={shareReward.rewardLink} onChange={(e) => {
+                        setShareReward({ ...shareReward, rewardLink: e.target.value });
                     }
                     } placeholder="https://" fullWidth />
-                    <Typography variant="h5" my={2} textAlign="left">No. of users able to claim CCD: {shareReward.NumberOfUsersAbleToClaim}</Typography>
+                    <Typography variant="h5" my={2} textAlign="left">No. of users able to claim CCD: {shareReward.numberOfUsersAbleToClaim}</Typography>
                     <Slider
                         color="primary"
                         aria-label="Max Users"
-                        value={shareReward?.NumberOfUsersAbleToClaim}
+                        value={shareReward?.numberOfUsersAbleToClaim}
                         onChange={(event: Event, newValue: number | number[]) => {
-                            setShareReward({ ...shareReward!, NumberOfUsersAbleToClaim: newValue as number })
+                            setShareReward({ ...shareReward!, numberOfUsersAbleToClaim: newValue as number })
                         }}
                         valueLabelDisplay="auto"
                         step={1}
@@ -107,13 +111,13 @@ const Upload = () => {
                         max={24}
                     />
 
-                    <Typography variant="h5" my={2} textAlign="left">CCD paid for each guest click: <b>{shareReward.AmountPaidPerClick} CCD</b></Typography>
+                    <Typography variant="h5" my={2} textAlign="left">CCD paid for each guest click: <b>{shareReward.amountPaidPerClick} CCD</b></Typography>
                     <Slider
                         color="primary"
                         aria-label="Max Users"
-                        value={shareReward?.AmountPaidPerClick}
+                        value={shareReward?.amountPaidPerClick}
                         onChange={(event: Event, newValue: number | number[]) => {
-                            setShareReward({ ...shareReward!, AmountPaidPerClick: newValue as number })
+                            setShareReward({ ...shareReward!, amountPaidPerClick: newValue as number })
                         }}
                         valueLabelDisplay="auto"
                         step={10}
@@ -122,13 +126,13 @@ const Upload = () => {
                         max={120}
                     />
 
-                    <Typography variant="h5" my={2} textAlign="left">Max claimable link clicks per guest: {shareReward.MaxPaidClicksPerUser}</Typography>
+                    <Typography variant="h5" my={2} textAlign="left">Max claimable link clicks per guest: {shareReward.maxPaidClicksPerUser}</Typography>
                     <Slider
                         color="secondary"
                         aria-label="Max clicks per user"
-                        value={shareReward?.MaxPaidClicksPerUser}
+                        value={shareReward?.maxPaidClicksPerUser}
                         onChange={(event: Event, newValue: number | number[]) => {
-                            setShareReward({ ...shareReward!, MaxPaidClicksPerUser: newValue as number })
+                            setShareReward({ ...shareReward!, maxPaidClicksPerUser: newValue as number })
                         }}
                         valueLabelDisplay="auto"
                         step={10}
@@ -139,28 +143,28 @@ const Upload = () => {
 
                     <Typography variant="h6" my={2} textAlign="left">
                         Est. grand total: {
-                            (shareReward.AmountPaidPerClick ?? 0) *
-                            (shareReward.NumberOfUsersAbleToClaim ?? 0) *
-                            (shareReward.MaxPaidClicksPerUser ?? 0)
+                            (shareReward.amountPaidPerClick ?? 0) *
+                            (shareReward.numberOfUsersAbleToClaim ?? 0) *
+                            (shareReward.maxPaidClicksPerUser ?? 0)
                         } CCD
                     </Typography>
-                    <LoadingButton loading={generatedLink?.isLoading} disabled={!validShareReward(shareReward)} onClick={() => generateLink()} variant="contained" color="warning" sx={{ marginY: 4 }}>
+                    <LoadingButton loading={loading} disabled={!validShareReward(shareReward)} onClick={() => generateLink()} variant="contained" color="warning" sx={{ marginY: 4 }}>
                         Generate reward link
                     </LoadingButton>
-                    {generatedLink?.error && (
+                    {failed && (
                         <Alert sx={{ mb: 4 }} severity="error">
                             Couldn't generate link
                         </Alert>
                     )}
-                    {generatedLink?.result && (
+                    {generatedLink && (
                         <Alert sx={{ mb: 4 }} action={<IconButton onClick={() => {
-                            copyText(shareReward?.RewardLink ?? "")
+                            copyText(generatedLink ?? "")
                             toast.success("Link copied successfully")
                         }} aria-label="copy" >
                             <ContentCopy />
                         </IconButton>} severity="success">
-                            Shareable link generated: <Link variant="inherit" href={generatedLink.result}>
-                                {generatedLink.result}
+                            Shareable link generated: <Link variant="inherit" href={generatedLink}>
+                                {generatedLink}
                             </Link>
                         </Alert>)}
                 </Box>
