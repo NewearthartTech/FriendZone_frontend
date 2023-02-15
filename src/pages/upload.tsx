@@ -4,7 +4,7 @@ import { countries } from "../utils/countries"
 import { RewardAttribute } from '../utils/types';
 import WalletEnsure from '../components/walletEnsure';
 import toast from 'react-hot-toast';
-import { copyText } from '../utils/utils';
+import { copyText, validShareReward } from '../utils/utils';
 import { ContentCopy } from '@mui/icons-material';
 const Upload = () => {
     const [shareReward, setShareReward] = useState<RewardAttribute>(
@@ -63,11 +63,24 @@ const Upload = () => {
                         direction={{ xs: 'column', sm: 'row' }}
                         spacing={{ xs: 1, sm: 2, md: 4 }}
                     >
-                        <TextField label="Min. age" inputProps={{ inputMode: 'numeric', pattern: '/[^0-9\.]+/g' }} fullWidth />
-                        <TextField label="Max age" inputProps={{ inputMode: 'numeric', pattern: '/[^0-9\.]+/g' }} fullWidth />
+                        <TextField label="Min. age" value={shareReward.minAge} onChange={e => {
+                            const cleanNum = (e.target.value || '').replace(/[^0-9\.]+/g,
+                                ''
+                            );
+                            setShareReward({ ...shareReward, minAge: cleanNum })
+                        }} fullWidth />
+                        <TextField label="Max age" value={shareReward.maxAge} onChange={e => {
+                            const cleanNum = (e.target.value || '').replace(/[^0-9\.]+/g,
+                                ''
+                            );
+                            setShareReward({ ...shareReward, maxAge: cleanNum })
+                        }} fullWidth />
                     </Stack>
                     <Typography variant="h5" my={2} textAlign="left">Link to share to users</Typography>
-                    <TextField label="Link to share" placeholder="https://" fullWidth />
+                    <TextField label="Link to share" value={shareReward.rewardLink} onChange={(e) => {
+                        setShareReward({ ...shareReward, rewardLink: e.target.value });
+                    }
+                    } placeholder="https://" fullWidth />
                     <Typography variant="h5" my={2} textAlign="left">No. of users able to claim CCD: {shareReward.numberOfUsersAbleToClaim}</Typography>
                     <Slider
                         color="primary"
@@ -120,7 +133,7 @@ const Upload = () => {
                             (shareReward.maxPaidClicksPerUser ?? 0)
                         } CCD
                     </Typography>
-                    <Button onClick={() => generateLink()} variant="contained" color="warning" sx={{ marginY: 4 }}>
+                    <Button disabled={!validShareReward(shareReward)} onClick={() => generateLink()} variant="contained" color="warning" sx={{ marginY: 4 }}>
                         Generate reward link
                     </Button>
 
