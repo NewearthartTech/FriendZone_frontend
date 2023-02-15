@@ -19,9 +19,9 @@ export const validShareReward = (shareReward: RewardAttribute) => {
 	return (
 		(Number(shareReward.maxAge) ?? 0) >= (Number(shareReward.minAge) ?? 0) &&
 		shareReward.countries.length >= 1 &&
-		(shareReward?.numberOfUsersAbleToClaim ?? 0) >= 1 &&
-		(shareReward.amountPaidPerClick ?? 0) >= 1 &&
-		(shareReward.maxPaidClicksPerUser ?? 0) >= 1 &&
+		(Number(shareReward?.numberOfUsersAbleToClaim) ?? 0) >= 1 &&
+		(Number(shareReward.amountPaidPerClick) ?? 0) >= 1 &&
+		(Number(shareReward.maxPaidClicksPerUser) ?? 0) >= 1 &&
 		urlPattern.test(shareReward?.rewardLink!)
 	);
 };

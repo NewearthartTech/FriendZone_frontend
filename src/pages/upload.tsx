@@ -26,7 +26,13 @@ const Upload = () => {
         setLoading(true)
         if (wallet.address)
             try {
-                const generatedRewardAttribute = await createRewardAttributes({ ...shareReward, walletAddress: wallet.address });
+                const generatedRewardAttribute = await createRewardAttributes({
+                    ...shareReward,
+                    walletAddress: wallet.address,
+                    numberOfUsersAbleToClaim: Number(shareReward.numberOfUsersAbleToClaim),
+                    maxPaidClicksPerUser: Number(shareReward.maxPaidClicksPerUser),
+                    amountPaidPerClick: Number(shareReward.amountPaidPerClick)
+                });
                 setGeneratedLink(`${import.meta.env.DEV ? "http://" : "https://"}${window.location.host}/claim/${generatedRewardAttribute.id}`);
             }
             catch (e: any) {
@@ -96,56 +102,33 @@ const Upload = () => {
                         setShareReward({ ...shareReward, rewardLink: e.target.value });
                     }
                     } placeholder="https://" fullWidth />
-                    <Typography variant="h5" my={2} textAlign="left">No. of users able to claim CCD: {shareReward.numberOfUsersAbleToClaim}</Typography>
-                    <Slider
-                        color="primary"
-                        aria-label="Max Users"
-                        value={shareReward?.numberOfUsersAbleToClaim}
-                        onChange={(event: Event, newValue: number | number[]) => {
-                            setShareReward({ ...shareReward!, numberOfUsersAbleToClaim: newValue as number })
-                        }}
-                        valueLabelDisplay="auto"
-                        step={1}
-                        marks
-                        min={1}
-                        max={24}
-                    />
+                    <Typography variant="h5" my={2} textAlign="left">No. of users able to claim CCD</Typography>
+                    <TextField label="Max claimable links" value={shareReward.numberOfUsersAbleToClaim} onChange={e => {
+                        const cleanNum = (e.target.value || '').replace(/[^0-9\.]+/g,
+                            ''
+                        );
+                        setShareReward({ ...shareReward, numberOfUsersAbleToClaim: cleanNum })
+                    }} fullWidth />
 
-                    <Typography variant="h5" my={2} textAlign="left">CCD paid for each guest click: <b>{shareReward.amountPaidPerClick} CCD</b></Typography>
-                    <Slider
-                        color="primary"
-                        aria-label="Max Users"
-                        value={shareReward?.amountPaidPerClick}
-                        onChange={(event: Event, newValue: number | number[]) => {
-                            setShareReward({ ...shareReward!, amountPaidPerClick: newValue as number })
-                        }}
-                        valueLabelDisplay="auto"
-                        step={10}
-                        marks
-                        min={1}
-                        max={120}
-                    />
-
-                    <Typography variant="h5" my={2} textAlign="left">Max claimable link clicks per guest: {shareReward.maxPaidClicksPerUser}</Typography>
-                    <Slider
-                        color="secondary"
-                        aria-label="Max clicks per user"
-                        value={shareReward?.maxPaidClicksPerUser}
-                        onChange={(event: Event, newValue: number | number[]) => {
-                            setShareReward({ ...shareReward!, maxPaidClicksPerUser: newValue as number })
-                        }}
-                        valueLabelDisplay="auto"
-                        step={10}
-                        marks
-                        min={1}
-                        max={120}
-                    />
-
+                    <Typography variant="h5" my={2} textAlign="left">CCD paid for each click</Typography>
+                    <TextField label="CCD per click" value={shareReward.amountPaidPerClick} onChange={e => {
+                        const cleanNum = (e.target.value || '').replace(/[^0-9\.]+/g,
+                            ''
+                        );
+                        setShareReward({ ...shareReward, amountPaidPerClick: cleanNum })
+                    }} fullWidth />
+                    <Typography variant="h5" my={2} textAlign="left">Max claimable link clicks per user</Typography>
+                    <TextField label="Max claimable links" value={shareReward.maxPaidClicksPerUser} onChange={e => {
+                        const cleanNum = (e.target.value || '').replace(/[^0-9\.]+/g,
+                            ''
+                        );
+                        setShareReward({ ...shareReward, maxPaidClicksPerUser: cleanNum })
+                    }} fullWidth />
                     <Typography variant="h6" my={2} textAlign="left">
                         Est. grand total: {
-                            (shareReward.amountPaidPerClick ?? 0) *
-                            (shareReward.numberOfUsersAbleToClaim ?? 0) *
-                            (shareReward.maxPaidClicksPerUser ?? 0)
+                            (Number(shareReward.amountPaidPerClick) ?? 0) *
+                            (Number(shareReward.numberOfUsersAbleToClaim) ?? 0) *
+                            (Number(shareReward.maxPaidClicksPerUser) ?? 0)
                         } CCD
                     </Typography>
                     <LoadingButton loading={loading} disabled={!validShareReward(shareReward)} onClick={() => generateLink()} variant="contained" color="warning" sx={{ marginY: 4 }}>
