@@ -2,13 +2,14 @@ import { Alert, AlertTitle, Backdrop, Link, Box, Card, CardContent, Chip, Circul
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom';
 import { ReferalResponse } from '../utils/types';
-import WalletEnsure from '../components/walletEnsure';
 import { countries } from '../utils/countries';
 import { copyText } from '../utils/utils';
 import toast from 'react-hot-toast';
 import { ContentCopy } from '@mui/icons-material';
 import { walletAtom } from '../store/walletStore';
 import { useAtom } from 'jotai';
+import WalletEnsure from '../components/walletEnsure';
+import { createReferral } from '../utils/backend';
 const Claim = () => {
     const { id } = useParams();
     const [shareReferral, setShareReferral] = useState<ReferalResponse>();
@@ -19,25 +20,9 @@ const Claim = () => {
         (async () => {
             setIsLoading(true);
             try {
-                await setTimeout(() => {
-                    setShareReferral({
-                        rewardAttribute: {
-                            walletAddress: "3v1JUB1R1JLFtcKvHqD9QFqe2NXeBF53tp69FLPHYipTjNgLrV",
-                            numberOfUsersAbleToClaim: 12,
-                            countries: ["DE", "GB"],
-
-                            minAge: 17,
-                            maxAge: 39,
-                            rewardLink: "https://www.google.com/",
-                        },
-                        referal: {
-                            personalLink: "http://localhost:5173/refClaim/23224",
-                            walletAddress: wallet.address
-                        }
-                    });
-                    setIsLoading(false);
-                }, 3000)
-
+                const refResponse = await createReferral({ rewardId: id, walletAddress: wallet.address })
+                setShareReferral(refResponse);
+                setIsLoading(false);
             }
             catch {
                 setHasError(true)

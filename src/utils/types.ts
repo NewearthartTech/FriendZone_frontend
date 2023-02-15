@@ -14,7 +14,7 @@ export interface Referal {
 	id?: string;
 	personalLink?: string;
 	walletAddress?: string;
-	rewardLink?: string;
+	rewardId?: string;
 	amountToClaim?: number;
 	hasClaimed?: boolean;
 }
