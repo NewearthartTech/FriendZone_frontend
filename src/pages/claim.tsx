@@ -46,7 +46,7 @@ const Claim = () => {
             try {
                 const newR = await claimReward({
                     walletAddress: wallet.address,
-                    personalLink: `${import.meta.env.DEV ? "http://" : "https://"}${window.location.host}/claim/${id}`
+                    personalLink: shareReferral?.referal.personalLink ?? ""
                 });
                 setClaimAmount(shareReferral?.referal.amountToClaim);
                 setShareReferral(newR);
