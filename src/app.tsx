@@ -12,6 +12,7 @@ import {
 import Home from "./pages/home";
 import Upload from "./pages/upload";
 import Claim from "./pages/claim";
+import Referral from "./pages/referral";
 
 const darkTheme = createTheme({
     palette: {
@@ -29,6 +30,7 @@ function App() {
                 <Route path="/" element={<Home />} />
                 <Route path="upload" element={<Upload />} />
                 <Route path="claim/:id" element={<Claim />} />
+                <Route path="ref/:id" element={<Referral />} />
             </Route>
         )
     );

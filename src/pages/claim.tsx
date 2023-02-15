@@ -5,20 +5,26 @@ import { ReferalResponse } from '../utils/types';
 import { countries } from '../utils/countries';
 import { copyText } from '../utils/utils';
 import toast from 'react-hot-toast';
-import { ContentCopy } from '@mui/icons-material';
+import { ContentCopy, Replay } from '@mui/icons-material';
 import { walletAtom } from '../store/walletStore';
 import { useAtom } from 'jotai';
 import WalletEnsure from '../components/walletEnsure';
-import { createReferral } from '../utils/backend';
+import { claimReward, createReferral } from '../utils/backend';
+import { LoadingButton } from '@mui/lab';
 const Claim = () => {
     const { id } = useParams();
     const [shareReferral, setShareReferral] = useState<ReferalResponse>();
     const [isLoading, setIsLoading] = useState(false);
     const [hasError, setHasError] = useState(false);
+    const [claimAmount, setClaimAmount] = useState<number>();
+    const [claimFail, setClaimFail] = useState<boolean>();
+    const [claimLoading, setClaimLoading] = useState<boolean>();
     const [wallet] = useAtom(walletAtom)
-    useEffect(() => {
-        (async () => {
-            setIsLoading(true);
+
+    const loadContent = async () => {
+        setIsLoading(true);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        if (wallet.address)
             try {
                 const refResponse = await createReferral({ rewardId: id, walletAddress: wallet.address })
                 setShareReferral(refResponse);
@@ -27,8 +33,30 @@ const Claim = () => {
             catch {
                 setHasError(true)
             }
+    }
+    useEffect(() => {
+        (async () => {
+            loadContent()
         })()
-    }, []);
+    }, [wallet.address]);
+
+    const claimRewards = async () => {
+        if (wallet.address) {
+            setClaimLoading(true);
+            try {
+                const newR = await claimReward({
+                    walletAddress: wallet.address,
+                    personalLink: `${import.meta.env.DEV ? "http://" : "https://"}${window.location.host}/claim/${id}`
+                });
+                setClaimAmount(shareReferral?.referal.amountToClaim);
+                setShareReferral(newR);
+            }
+            catch {
+                setClaimFail(true);
+            }
+            setClaimLoading(false)
+        }
+    }
     if (hasError)
         return (
             <WalletEnsure>
@@ -53,7 +81,7 @@ const Claim = () => {
                     Shareable reward details
                 </Typography>
                 <Card variant="outlined" sx={{ maxWidth: "35rem", mx: "auto" }}>
-                    <CardContent>
+                    <CardContent sx={{ position: "relative" }}>
                         <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
                             Created by
                         </Typography>
@@ -120,23 +148,26 @@ const Claim = () => {
                             Reward avalaible
                         </Typography>
                         <Typography variant="h5">
-                            {((shareReferral?.rewardAttribute?.amountPaidPerClick ?? 1) * 12).toFixed(2)} CCD
+                            {shareReferral?.referal.amountToClaim} CCD
                         </Typography>
+                        <IconButton onClick={() => loadContent()} color="info" sx={{ position: "absolute", right: "0.1em", bottom: "0.3em" }}>
+                            <Replay />
+                        </IconButton>
                     </CardContent>
                 </Card>
 
                 <Box sx={{ textAlign: "center", mt: 3 }}>
-                    <Button variant="contained">
+                    <LoadingButton loading={claimLoading} variant="contained" disabled={!shareReferral?.referal.amountToClaim} onClick={() => claimRewards()}>
                         Claim Reward
-                    </Button>
+                    </LoadingButton>
                 </Box>
 
-                <Alert sx={{ mt: 4, maxWidth: "30rem", mx: "auto" }} variant="outlined" severity="success" >
-                    Reward claimed successfully, received {((shareReferral?.rewardAttribute?.amountPaidPerClick ?? 1) * 12).toFixed(2)}  CCD
-                </Alert>
-                <Alert sx={{ mt: 4, maxWidth: "30rem", mx: "auto" }} variant="outlined" severity="error" >
+                {claimAmount && <Alert sx={{ mt: 4, maxWidth: "30rem", mx: "auto" }} variant="outlined" severity="success" >
+                    Reward claimed successfully, received {claimAmount} CCD
+                </Alert>}
+                {claimFail && (<Alert sx={{ mt: 4, maxWidth: "30rem", mx: "auto" }} variant="outlined" severity="error" >
                     CCD Reward already claimed
-                </Alert>
+                </Alert>)}
             </>
         </WalletEnsure>
     )

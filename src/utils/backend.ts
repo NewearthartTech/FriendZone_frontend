@@ -14,7 +14,7 @@ export async function getRewardAttributes(
 		`${import.meta.env.VITE_BACKEND_ENDPOINT}/rewards/${rewardLink}`
 	);
 	const body = await r.json();
-	return JSON.parse(body);
+	return body;
 }
 
 export async function getAllRewardsAttributedByAddress(
@@ -24,17 +24,17 @@ export async function getAllRewardsAttributedByAddress(
 		`${import.meta.env.VITE_BACKEND_ENDPOINT}/rewards/u/${address}`
 	);
 	const body = await r.json();
-	return JSON.parse(body);
+	return body;
 }
 
 export async function getReferralInfo(
 	personalLink: string
-): Promise<RewardAttribute[]> {
+): Promise<ReferalResponse> {
 	const r = await fetch(
 		`${import.meta.env.VITE_BACKEND_ENDPOINT}/rewards/ref/${personalLink}`
 	);
 	const body = await r.json();
-	return JSON.parse(body);
+	return body;
 }
 
 export async function createRewardAttributes(

@@ -14,7 +14,6 @@ const Upload = () => {
     const [wallet] = useAtom(walletAtom)
     const [shareReward, setShareReward] = useState<RewardAttribute>(
         {
-            walletAddress: wallet.address ?? "",
             numberOfUsersAbleToClaim: 1,
             countries: []
         }
@@ -25,14 +24,15 @@ const Upload = () => {
     const generateLink = async () => {
         setFailed(false)
         setLoading(true)
-        try {
-            const generatedRewardAttribute = await createRewardAttributes(shareReward);
-            setGeneratedLink(`http://localhost:5173/claim/${generatedRewardAttribute.id}`);
-        }
-        catch (e: any) {
-            console.log(e)
-            setFailed(true);
-        }
+        if (wallet.address)
+            try {
+                const generatedRewardAttribute = await createRewardAttributes({ ...shareReward, walletAddress: wallet.address });
+                setGeneratedLink(`${import.meta.env.DEV ? "http://" : "https://"}${window.location.host}/claim/${generatedRewardAttribute.id}`);
+            }
+            catch (e: any) {
+                console.log(e)
+                setFailed(true);
+            }
         setLoading(false)
     }
     return (
@@ -156,7 +156,7 @@ const Upload = () => {
                             Couldn't generate link
                         </Alert>
                     )}
-                    {generatedLink && (
+                    {generatedLink !== `${window.location.host}/claim/undefined` && generatedLink && (
                         <Alert sx={{ mb: 4 }} action={<IconButton onClick={() => {
                             copyText(generatedLink ?? "")
                             toast.success("Link copied successfully")
