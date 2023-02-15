@@ -1,24 +1,34 @@
 import { Alert, Link, Box, Button, Chip, FormControl, InputAdornment, InputLabel, MenuItem, Select, SelectChangeEvent, Stack, TextField, Typography, Slider, IconButton } from '@mui/material'
 import React, { useState } from 'react'
 import { countries } from "../utils/countries"
-import { RewardAttribute } from '../utils/types';
+import { IAsyncResult, RewardAttribute } from '../utils/types';
 import WalletEnsure from '../components/walletEnsure';
 import toast from 'react-hot-toast';
 import { copyText, validShareReward } from '../utils/utils';
 import { ContentCopy } from '@mui/icons-material';
+import { walletAtom } from '../store/walletStore';
+import { useAtom } from 'jotai';
+import LoadingButton from '@mui/lab/LoadingButton';
+import { createRewardAttributes } from '../utils/backend';
 const Upload = () => {
+    const [wallet] = useAtom(walletAtom)
     const [shareReward, setShareReward] = useState<RewardAttribute>(
         {
+            walletAddress: wallet.address,
             numberOfUsersAbleToClaim: 1,
             countries: []
         }
     )
-    const [generatedLink, setGeneratedLink] = useState<string>();
+    const [generatedLink, setGeneratedLink] = useState<IAsyncResult<string>>();
     const generateLink = async () => {
-        await setTimeout(() => {
-            setGeneratedLink("http://localhost:5173/claim/123445")
-        },
-            1000)
+        setGeneratedLink({ isLoading: true });
+        try {
+            const generatedRewardAttribute = await createRewardAttributes(shareReward);
+            setGeneratedLink({ result: generatedRewardAttribute.rewardLink });
+        }
+        catch (e: any) {
+            setGeneratedLink({ error: e })
+        }
     }
     return (
         <WalletEnsure>
@@ -133,19 +143,23 @@ const Upload = () => {
                             (shareReward.maxPaidClicksPerUser ?? 0)
                         } CCD
                     </Typography>
-                    <Button disabled={!validShareReward(shareReward)} onClick={() => generateLink()} variant="contained" color="warning" sx={{ marginY: 4 }}>
+                    <LoadingButton loading={generatedLink?.isLoading} disabled={!validShareReward(shareReward)} onClick={() => generateLink()} variant="contained" color="warning" sx={{ marginY: 4 }}>
                         Generate reward link
-                    </Button>
-
-                    {generatedLink && (
+                    </LoadingButton>
+                    {generatedLink?.error && (
+                        <Alert sx={{ mb: 4 }} severity="error">
+                            Couldn't generate link
+                        </Alert>
+                    )}
+                    {generatedLink?.result && (
                         <Alert sx={{ mb: 4 }} action={<IconButton onClick={() => {
                             copyText(shareReward?.rewardLink ?? "")
                             toast.success("Link copied successfully")
                         }} aria-label="copy" >
                             <ContentCopy />
                         </IconButton>} severity="success">
-                            Shareable link generated: <Link variant="inherit" href={generatedLink}>
-                                {generatedLink}
+                            Shareable link generated: <Link variant="inherit" href={generatedLink.result}>
+                                {generatedLink.result}
                             </Link>
                         </Alert>)}
                 </Box>
