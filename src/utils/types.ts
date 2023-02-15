@@ -1,36 +1,36 @@
 export interface RewardAttribute {
-	id?: string;
-	countries: Array<string>;
-	minAge?: number | string;
-	maxAge?: number | string;
-	numberOfUsersAbleToClaim?: number;
-	rewardLink?: string;
-	walletAddress?: string;
-	amountPaidPerClick?: number;
-	maxPaidClicksPerUser?: number;
-	numberOfUsers?: number;
+	Id?: string;
+	Countries: Array<string>;
+	MinAge?: number | string;
+	MaxAge?: number | string;
+	NumberOfUsersAbleToClaim?: number;
+	RewardLink?: string;
+	WalletAddress?: string;
+	AmountPaidPerClick?: number;
+	MaxPaidClicksPerUser?: number;
+	NumberOfUsers?: number;
 }
 export interface Referal {
-	id?: string;
-	personalLink?: string;
-	walletAddress?: string;
-	rewardLink?: string;
-	amountToClaim?: number;
-	hasClaimed?: boolean;
+	Id?: string;
+	PersonalLink?: string;
+	WalletAddress?: string;
+	RewardLink?: string;
+	AmountToClaim?: number;
+	HasClaimed?: boolean;
 }
 export interface ReferalResponse {
-	referal: Referal;
-	rewardAttribute: RewardAttribute;
+	Referal: Referal;
+	RewardAttribute: RewardAttribute;
 }
 export interface RewardClaim {
-	personalLink: string;
-	walletAddress: string;
+	PersonalLink: string;
+	WalletAddress: string;
 }
 
 export interface Verifier {
-	id: string;
-	challenge: string;
-	walletAddress: string;
+	Id: string;
+	Challenge: string;
+	WalletAddress: string;
 }
 
 // DOTNET Misc
