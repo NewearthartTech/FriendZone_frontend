@@ -10,6 +10,7 @@ import { walletAtom } from '../store/walletStore';
 import { useAtom } from 'jotai';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { createRewardAttributes } from '../utils/backend';
+import dayjs from 'dayjs';
 const Upload = () => {
     const [wallet] = useAtom(walletAtom)
     const [shareReward, setShareReward] = useState<RewardAttribute>(
@@ -29,6 +30,8 @@ const Upload = () => {
                 const generatedRewardAttribute = await createRewardAttributes({
                     ...shareReward,
                     walletAddress: wallet.address,
+                    minAge: `${dayjs().year() - Number(shareReward.minAge)}${dayjs().month()}${dayjs().day()}`,
+                    maxAge: `${dayjs().year() - Number(shareReward.maxAge)}${dayjs().month()}${dayjs().day()}`,
                     numberOfUsersAbleToClaim: Number(shareReward.numberOfUsersAbleToClaim),
                     maxPaidClicksPerUser: Number(shareReward.maxPaidClicksPerUser),
                     amountPaidPerClick: Number(shareReward.amountPaidPerClick)
