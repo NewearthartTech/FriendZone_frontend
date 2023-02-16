@@ -22,6 +22,11 @@ const Upload = () => {
     const [generatedLink, setGeneratedLink] = useState<string>();
     const [loading, setLoading] = useState<boolean>();
     const [failed, setFailed] = useState<boolean>();
+    const formatDate = (dateN: number) => {
+        if (dateN < 10)
+            return `0${dateN}`
+        return dateN;
+    }
     const generateLink = async () => {
         setFailed(false)
         setLoading(true)
@@ -30,8 +35,8 @@ const Upload = () => {
                 const generatedRewardAttribute = await createRewardAttributes({
                     ...shareReward,
                     walletAddress: wallet.address,
-                    minAge: `${dayjs().year() - Number(shareReward.minAge)}${dayjs().month()}${dayjs().day()}`,
-                    maxAge: `${dayjs().year() - Number(shareReward.maxAge)}${dayjs().month()}${dayjs().day()}`,
+                    minAge: `${dayjs().year() - Number(shareReward.minAge)}${formatDate(dayjs().month())}${formatDate(dayjs().day())}`,
+                    maxAge: `${dayjs().year() - Number(shareReward.maxAge)}${formatDate(dayjs().month())}${formatDate(dayjs().day())}`,
                     numberOfUsersAbleToClaim: Number(shareReward.numberOfUsersAbleToClaim),
                     maxPaidClicksPerUser: Number(shareReward.maxPaidClicksPerUser),
                     amountPaidPerClick: Number(shareReward.amountPaidPerClick)
