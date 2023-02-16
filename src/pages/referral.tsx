@@ -5,6 +5,7 @@ import { walletAtom } from '../store/walletStore';
 import { getReferralInfo } from '../utils/backend';
 import WalletEnsure from '../components/walletEnsure';
 import { Alert, Box, CircularProgress } from '@mui/material';
+import { onVerifyID } from '../utils/verifyId';
 
 const Referral = () => {
     const { id } = useParams();
@@ -15,6 +16,7 @@ const Referral = () => {
             (async () => {
                 try {
                     const gottenReferral = await getReferralInfo(`${id}`);
+                    await onVerifyID(gottenReferral.rewardAttribute, wallet);
                     window.location.replace(gottenReferral.rewardAttribute.rewardLink!);
                 }
                 catch {

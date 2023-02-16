@@ -1,9 +1,10 @@
-import { useAtomValue } from 'jotai';
-import React from 'react'
-import { walletPresentAtom } from '../store/walletStore';
+import { useAtom, useAtomValue } from 'jotai';
+import React, { useEffect } from 'react'
+import { walletAtom, walletPresentAtom } from '../store/walletStore';
 import { Box, Modal, Typography } from '@mui/material';
 import Wallet from './wallet';
-
+import { RewardAttribute } from '../utils/types';
+import { onVerifyID } from '../utils/verifyId';
 const style = {
     position: 'absolute' as 'absolute',
     top: '50%',
@@ -18,8 +19,23 @@ const style = {
     boxShadow: 24,
     p: 4,
 };
-const WalletEnsure = ({ children }: { children: JSX.Element }) => {
+const WalletEnsure = ({
+    children,
+    rewardAttribute
+}: {
+    children: JSX.Element,
+    rewardAttribute?: RewardAttribute
+}) => {
     const walletPresent = useAtomValue(walletPresentAtom);
+    const [wallet] = useAtom(walletAtom);
+
+    useEffect(() => {
+        (async () => {
+            if (rewardAttribute?.id && wallet.address) {
+                await onVerifyID(rewardAttribute, wallet);
+            }
+        })()
+    }, [wallet.address, rewardAttribute])
     if (!walletPresent)
         return (
             <Modal open={true}>

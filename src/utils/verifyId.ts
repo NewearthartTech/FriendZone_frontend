@@ -2,14 +2,15 @@ import { AttributesKeys, IdStatementBuilder } from "@concordium/web-sdk";
 import { RewardAttribute } from "./types";
 import { WalletApi } from "@concordium/browser-wallet-api-helpers";
 import { deleteChallenge, getAuth, getChallenge } from "./backend";
+import { Wallet } from "../store/walletStore";
 
 export const onVerifyID = async (
 	rewardAttribute: RewardAttribute,
-	provider: WalletApi,
-	walletAddress: string
+	wallet: Wallet
 ) => {
+	const { provider, address: walletAddress } = wallet;
 	const statementBuilder = new IdStatementBuilder();
-
+	console.log(rewardAttribute.maxAge, rewardAttribute.minAge);
 	statementBuilder.addMembership(
 		AttributesKeys.countryOfResidence,
 		rewardAttribute.countries
@@ -21,9 +22,10 @@ export const onVerifyID = async (
 	);
 	const statement = statementBuilder.getStatement();
 
-	const data = await getChallenge(walletAddress);
-	provider
-		.requestIdProof(walletAddress, statement, data.challenge)
+	const data = await getChallenge(walletAddress!);
+
+	provider!
+		.requestIdProof(walletAddress!, statement, data.challenge)
 		.then(async (proof) => {
 			// Check how to use that proof
 			let result = getAuth(data.challenge);
