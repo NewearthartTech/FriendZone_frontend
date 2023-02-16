@@ -11,7 +11,6 @@ import { useAtom } from 'jotai';
 import WalletEnsure from '../components/walletEnsure';
 import { claimReward, createReferral } from '../utils/backend';
 import { LoadingButton } from '@mui/lab';
-import { onVerifyID } from '../utils/verifyId';
 const Claim = () => {
     const { id } = useParams();
     const [shareReferral, setShareReferral] = useState<ReferalResponse>();
@@ -38,8 +37,6 @@ const Claim = () => {
     useEffect(() => {
         (async () => {
             await loadContent();
-            if (shareReferral?.rewardAttribute)
-                await onVerifyID(shareReferral?.rewardAttribute, wallet);
         })()
     }, [wallet.address]);
 

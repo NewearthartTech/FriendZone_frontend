@@ -1,7 +1,7 @@
 import { useAtom, useAtomValue } from 'jotai';
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { walletAtom, walletPresentAtom } from '../store/walletStore';
-import { Box, Modal, Typography } from '@mui/material';
+import { Alert, AlertTitle, Box, CircularProgress, Modal, Typography } from '@mui/material';
 import Wallet from './wallet';
 import { RewardAttribute } from '../utils/types';
 import { onVerifyID } from '../utils/verifyId';
@@ -21,32 +21,47 @@ const style = {
 };
 const WalletEnsure = ({
     children,
-    rewardAttribute
+    rewardAttribute,
+    execAfterValidation
 }: {
     children: JSX.Element,
-    rewardAttribute?: RewardAttribute
+    rewardAttribute?: RewardAttribute,
+    execAfterValidation?: () => Promise<any>
 }) => {
     const walletPresent = useAtomValue(walletPresentAtom);
     const [wallet] = useAtom(walletAtom);
-
+    const [incompatibleID, setIncompatibleID] = useState<boolean>();
+    const [askedID, setAskedID] = useState<boolean>();
     useEffect(() => {
         (async () => {
             if (rewardAttribute?.id && wallet.address) {
-                await onVerifyID(rewardAttribute, wallet);
+                setAskedID(true)
+                const validAccount = await onVerifyID(rewardAttribute, wallet)
+                setIncompatibleID(!validAccount)
+                if (validAccount && execAfterValidation) {
+                    await execAfterValidation();
+                }
             }
+            setAskedID(false)
         })()
     }, [wallet.address, rewardAttribute])
-    if (!walletPresent)
+    if (incompatibleID)
+        return <Alert sx={{ margin: 4 }} severity="error">
+            <AlertTitle>Error</AlertTitle>
+            This content isn't avalaible for you
+        </Alert>
+    if (!walletPresent || askedID)
         return (
             <Modal open={true}>
                 <Box sx={style}>
                     <Typography variant="h6" sx={{ marginY: 2 }}>
                         Connect Wallet to access page
                     </Typography>
-                    <Wallet />
+                    {askedID ? <CircularProgress /> : <Wallet />}
                 </Box>
             </Modal>
         )
+
     return children;
 }
 

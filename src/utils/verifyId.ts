@@ -7,10 +7,9 @@ import { Wallet } from "../store/walletStore";
 export const onVerifyID = async (
 	rewardAttribute: RewardAttribute,
 	wallet: Wallet
-) => {
+): Promise<boolean> => {
 	const { provider, address: walletAddress } = wallet;
 	const statementBuilder = new IdStatementBuilder();
-	console.log(rewardAttribute.maxAge, rewardAttribute.minAge);
 	statementBuilder.addMembership(
 		AttributesKeys.countryOfResidence,
 		rewardAttribute.countries
@@ -24,17 +23,20 @@ export const onVerifyID = async (
 
 	const data = await getChallenge(walletAddress!);
 
-	provider!
+	const result = provider!
 		.requestIdProof(walletAddress!, statement, data.challenge)
 		.then(async (proof) => {
-			// Check how to use that proof
+			/* // Check how to use that proof
 			let result = getAuth(data.challenge);
 			const token = (await result).result;
 			if (token) {
 				localStorage.setItem("token_key_cc", token);
-			}
+			} */
+			return true;
 		})
 		.catch(async (e) => {
 			await deleteChallenge(data.challenge);
+			return false;
 		});
+	return result;
 };
